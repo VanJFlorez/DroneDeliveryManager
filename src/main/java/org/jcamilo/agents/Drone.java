@@ -41,4 +41,66 @@ public class Drone {
         this.deliveryPaths = deliveryPaths;
         this.logDeliveryJourney = logDeliveryJourney;
     }
+
+    /**
+     * Here we guide the drone to its destination. 
+     * To ease the computations a mapping for the cardinal points was made:
+     *  
+     *      N               0
+     *    W   E           3   1
+     *      S               2
+     * 
+     * and we can compute de direction actions by doing modular arithmetic.
+     */
+    public void deliver(char[] deliveryPath) {
+            final int mod = 4;
+            int[] currLocation = {START_POINT[0], START_POINT[1], getIntDirection(START_POINT[2])};
+            for(char action : deliveryPath) {
+                switch (action) {
+                    case 'A': // Adelante
+                        switch (currLocation[2]) {
+                            case 0:
+                                currLocation[1] += 1;
+                                break;
+                            case 1:
+                                currLocation[0] += 1;
+                                break;
+                            case 2:
+                                currLocation[1] -= 1;
+                                break;
+                            case 3:
+                                currLocation[0] -= 1;
+                                break;
+                        }
+                        break;
+                    case 'I': // Izquierda
+                        currLocation[2] -= 1;
+                        currLocation[2] %= mod;
+                        break;
+                    case 'D': // Derecha
+                        currLocation[2] += 1;
+                        currLocation[2] %= mod;
+                        break;
+                }
+        }
+    }
+
+    /**
+     * A little helper
+     * @param direction takes a char and @return a number previously defined.
+     */
+    private static int getIntDirection(char direction) {
+        switch (direction) {
+            case 'N':
+                return 0;
+            case 'S':
+                return 1;
+            case 'W':
+                return 2;
+            case 'E':
+                return 3;
+            default:
+                return -1;
+        }
+    }
 }
