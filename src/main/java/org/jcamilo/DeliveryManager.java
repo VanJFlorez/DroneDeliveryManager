@@ -1,22 +1,37 @@
 package org.jcamilo;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.jcamilo.agents.Drone;
 
 /**
  * This class has the bussiness logic to drive the drone to its delivery
  * destination.
  */
 public class DeliveryManager {
-    public static void main( String[] args ) {
-        String inPath = "C:\\Users\\Administrador\\Downloads\\repo\\mine\\DronDeliveryManager\\in\\";
-        String outPath = "C:\\Users\\Administrador\\Downloads\\repo\\mine\\DronDeliveryManager\\out\\";
-
-        // how many drones there are
-        int droneQtty = ( new File(inPath)).listFiles().length;
+    public static void main(String[] args) throws IOException {
+        File inFolder = new File("C:\\Users\\Administrador\\Downloads\\repo\\mine\\DroneDeliveryManager\\input\\");
+        File outFolder = new File("C:\\Users\\Administrador\\Downloads\\repo\\mine\\DroneDeliveryManager\\output\\");
 
         // Do this with multithreading...
-        for(int i = 0; i < droneQtty; i++) {
-
+        for(File delivery : inFolder.listFiles()) {
+            String outFilePath = outFolder.getAbsolutePath() + "\\" + getOutputFilename(delivery.getName());            
+            Thread t = new Thread(new Drone(delivery, new File(outFilePath)));
+            t.start();
         }
+    }
+
+    private static String getOutputFilename(String inputFileName) {
+        return "out" + getFileNumber(inputFileName) + ".txt";
+    }
+
+    private static String getFileNumber(String fileName) {
+        Pattern pattern = Pattern.compile("\\d+");
+        Matcher matcher = pattern.matcher(fileName);
+        matcher.find();
+        return matcher.group();
     }
 }
