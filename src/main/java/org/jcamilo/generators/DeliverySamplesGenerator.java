@@ -18,6 +18,13 @@ public class DeliverySamplesGenerator {
     public static final String NUMBERING_FORMAT = "%02d";
     public static final String REPORT_SPLIT_MESSAGE = "== Reporte de entregas ==";
 
+
+    
+    public static void main(String[] args) {
+        String outpath = "C:\\Users\\Administrador\\Downloads\\repo\\mine\\DroneDeliveryManager\\datasets\\";
+        genActionsAndDeliveryPaths(outpath, 3, 15, 20);
+    }
+
     /**
      * Generates several randomly drone actions paths and at the same time computes 
      * the drone's location after perform each individual action.
@@ -54,15 +61,18 @@ public class DeliverySamplesGenerator {
             actions = new StringBuffer();
             locations = new StringBuffer();
 
-            location = START_POINT;
             try(BufferedWriter inFileWriter = new BufferedWriter(new FileWriter(inFile));
-                BufferedWriter outFileWriter = new BufferedWriter(new FileWriter(outFile));) {
-
+            BufferedWriter outFileWriter = new BufferedWriter(new FileWriter(outFile));) {
+                
                 locations.append(REPORT_SPLIT_MESSAGE);
                 locations.append(System.getProperty("line.separator"));
-                for(int j = 0; j < deliveryQtty; j++) { // generate 'qtty' paths...
-                    // TODO: Complete this  idea..
-                    for(int k = 0; k < length; k++) { // of lenght 'length'...
+                
+                int deliveries = rnd.nextInt(deliveryQtty);
+                for(int j = 0; j < deliveries; j++) { // generate 'deliveryQtty' paths...
+                    // each delivery starts from the initial point
+                    location = START_POINT;
+                    int steps = rnd.nextInt(length);
+                    for(int k = 0; k < steps; k++) { // of length 'length'...
                         // generate an action and append to actions buffer
                         action = DRONE_ACTIONS[rnd.nextInt(DRONE_ACTIONS.length)];
                         actions.append(action);
@@ -70,7 +80,7 @@ public class DeliverySamplesGenerator {
                         // compute the new cartesian location based on the current action
                         int[] newlocation = updateLocation(location, action);
                         location = newlocation;
-                        int a = 1;
+                        int a = 0;
                     }
 
                     // append final location to the reports file
@@ -120,10 +130,13 @@ public class DeliverySamplesGenerator {
                 }
                 break;
             case 'I': // Izquierda
-                newLocation[2] -= 1;
-                if(newLocation[2] == -1) {
+                // more efficient
+                if(newLocation[2] == 0) {
                     newLocation[2] = 3;
+                } else {
+                    newLocation[2] -= 1;
                 }
+
                 // newLocation[2] %= mod; // % here is remainder, not modulus
                 break;
             case 'D': // Derecha
@@ -161,10 +174,6 @@ public class DeliverySamplesGenerator {
     }
 
 
-    public static void main(String[] args) {
-        String outpath = "C:\\Users\\Administrador\\Downloads\\repo\\mine\\DronDeliveryManager\\datasets\\";
-        genActionsAndDeliveryPaths(outpath, 3, 15, 20);
-    }
 
     public static void printArr(int[] arr) {
         System.out.print("[ ");

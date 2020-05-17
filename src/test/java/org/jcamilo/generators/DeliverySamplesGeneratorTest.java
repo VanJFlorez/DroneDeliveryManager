@@ -7,6 +7,9 @@ import java.util.Random;
 import org.junit.jupiter.api.Test;
 
 public class DeliverySamplesGeneratorTest {
+    public static void main(String... args) {
+        updateLocation_test();
+    }
 
     @Test
     public static void updateLocation_test() {
@@ -68,15 +71,5 @@ public class DeliverySamplesGeneratorTest {
 
 
 
-    }
-
-    public static class Pair {
-        public int[] after;
-        public int[] before;
-
-        public Pair(int[] after, int[] before) {
-            this.after = after;
-            this.before = before;
-        }
     }
 }
