@@ -8,28 +8,28 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jcamilo.common.Constants;
 import org.jcamilo.deliverables.Deliverable;
 
 public class Drone implements Runnable {
     private final static int ITEM_LIMIT = 3;
     private final static int MAX_DISTANCE_ALLOWED = 10;
-    public static final String REPORT_SPLIT_MESSAGE = "== Reporte de entregas ==";
-
+    public static final String reportSplitMessage = Constants.REPORT_SPLIT_MESSAGE;
 
     private List<String> droneActions;
     private List<Deliverable> deliverables;
+    private File reports;
+    private State state;
 
-    private File reportsOut;
-
-    public Drone(File deliveries, File reportsOut) throws IOException {
+    public Drone(File deliveries, File reports) throws IOException {
         droneActions = new LinkedList<>();
         BufferedReader reader = new BufferedReader(new FileReader(deliveries));
         String actions;
         while((actions = reader.readLine()) != null) {
             droneActions.add(actions);
         }
-
-        this.reportsOut = reportsOut;
+        state = new State();
+        this.reports = reports;
         reader.close();
     }
 
@@ -39,9 +39,9 @@ public class Drone implements Runnable {
      */
     @Override
     public void run() {
-        log(REPORT_SPLIT_MESSAGE);
+        log(reportSplitMessage);
         for(String actions : droneActions) {                
-            deliverOne(actions.toCharArray());
+            deliverOne(actions);
         }
     }
 
@@ -56,36 +56,44 @@ public class Drone implements Runnable {
      * @return void, but writes to reportsOut the drone's final location
      * @throws IOException
      */
-    private void deliverOne(char[] deliveryPath) {
-        State state = new State();
-        for(char action : deliveryPath) {
+    public void deliverOne(String deliveryPath) {
+        returnToStore();
+        for(char action : deliveryPath.toCharArray()) {
             state.performAction(action);
         }
         log(state.getReadableState());
     }
 
+    public State getCurrentState() {
+        return state;
+    }
+    
+    public void returnToStore() {
+        state = new State();
+    }
+
     private void log(String str) {
-        try (FileWriter fw = new FileWriter(reportsOut, true);) {
+        try (FileWriter fw = new FileWriter(reports, true);) {
             fw.write(str + "\n"); 
         } catch (IOException e) {
             System.out.println("The message cannot be written to the log.");
             e.printStackTrace();
         }
-        
     }
 
     public static class State {
-        private static final char[] charDirections = {'N', 'E', 'S', 'W'};
-        private static final String[] spanishCoord = {"Norte", "Oriente", "Sur", "Occidente"};
+        private static final char[] charDirections = Constants.DIRECTIONS;
+        private static final String[] spanishCoord = Constants.DIRECTIONS_ES;
+        private static final String outputTemplate = Constants.OUTPUT_LOG_TEMPLATE;
 
         private int xPos;
         private int yPos;
         private int direction;
 
         public State() {
-            xPos = 0;
-            yPos = 0;
-            direction = 0;
+            xPos = Constants.START_POINT[0];
+            yPos = Constants.START_POINT[1];
+            direction = Constants.START_POINT[2];
         }
 
         public State(int xPos, int yPos, int direction) {
@@ -124,20 +132,8 @@ public class Drone implements Runnable {
             }
         }
 
-        public int[] getCurrentStateAsArray() {
-            return new int[]{xPos, yPos, direction};
-        }
-
         public String getReadableState() {
-            StringBuilder str = new StringBuilder();
-            str.append("(");
-            str.append(xPos);
-            str.append(", ");
-            str.append(yPos);
-            str.append(")");
-            str.append(" dirección ");
-            str.append(spanishCoord[direction]);
-            return str.toString();
+            return String.format(outputTemplate, xPos, yPos, spanishCoord[direction]);
         }
 
         /**
@@ -147,6 +143,9 @@ public class Drone implements Runnable {
             return charDirections[direction];
         }
 
-    }
+        public int getXPos() { return xPos; }
+        public int getYPos() { return yPos; }
+        public int getDirection() { return direction; }
 
+    }
 }

@@ -6,17 +6,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
 
+import org.jcamilo.common.Constants;
+
 public class DeliverySamplesGenerator {
     // drone properties
-    public static final char[] DRONE_ACTIONS = {'A', 'I', 'D'};
-    public static final int[] START_POINT = {0, 0, 0};
-    
+    private static final char[] droneActions = Constants.ACTIONS;
+    private static final int[] startPoint = Constants.START_POINT;
+    private static final String[] spanishDirections = Constants.DIRECTIONS_ES;
     // file properties
-    public static final String FILE_IN_PREFIX = "in";
-    public static final String FILE_OUT_PREFIX = "out";
-    public static final String FILE_EXTENSION = ".txt";
-    public static final String NUMBERING_FORMAT = "%02d";
-    public static final String REPORT_SPLIT_MESSAGE = "== Reporte de entregas ==";
+    private static final String fileInPrefix = Constants.FILE_IN_PREFIX;
+    private static final String fileOutPrefix = Constants.FILE_OUT_PREFIX;
+    private static final String fileExtension = Constants.FILE_EXTENSION;
+    private static final String numberingFormat = Constants.NUMBERING_FORMAT;
+    private static final String reportSplitMessage = Constants.REPORT_SPLIT_MESSAGE;
 
 
     
@@ -27,7 +29,7 @@ public class DeliverySamplesGenerator {
 
     /**
      * Generates several randomly drone actions paths and at the same time computes 
-     * the drone's location after perform each individual action.
+     * the drone's location after performing each individual action.
      * @param dronQtty the number of drones involved in the problem
      * @param deliveryQtty the upper bound for the random quantity of delivery 
      *             paths per dron
@@ -41,6 +43,7 @@ public class DeliverySamplesGenerator {
         if (!folderOutPath.endsWith("/"))
             folderOutPath += "/";
 
+        // move to the for
         StringBuffer actions;
         StringBuffer locations;
         String inputFileName;
@@ -52,11 +55,11 @@ public class DeliverySamplesGenerator {
         Random rnd = new Random();
 
         for(int i = 0; i < dronQtty; i++) { // per each drone...
-            inputFileName = FILE_IN_PREFIX + String.format(NUMBERING_FORMAT, i + 1);
-            inFile = new File(folderOutPath + inputFileName + FILE_EXTENSION);
+            inputFileName = fileInPrefix + String.format(numberingFormat, i + 1);
+            inFile = new File(folderOutPath + inputFileName + fileExtension);
             
-            outputFileName = FILE_OUT_PREFIX + String.format(NUMBERING_FORMAT, i + 1);
-            outFile = new File(folderOutPath + outputFileName + FILE_EXTENSION);
+            outputFileName = fileOutPrefix + String.format(numberingFormat, i + 1);
+            outFile = new File(folderOutPath + outputFileName + fileExtension);
             
             actions = new StringBuffer();
             locations = new StringBuffer();
@@ -64,23 +67,21 @@ public class DeliverySamplesGenerator {
             try(BufferedWriter inFileWriter = new BufferedWriter(new FileWriter(inFile));
             BufferedWriter outFileWriter = new BufferedWriter(new FileWriter(outFile));) {
                 
-                locations.append(REPORT_SPLIT_MESSAGE);
+                locations.append(reportSplitMessage);
                 locations.append(System.getProperty("line.separator"));
                 
                 int deliveries = rnd.nextInt(deliveryQtty);
                 for(int j = 0; j < deliveries; j++) { // generate 'deliveryQtty' paths...
                     // each delivery starts from the initial point
-                    location = START_POINT;
+                    location = startPoint;
                     int steps = rnd.nextInt(length);
                     for(int k = 0; k < steps; k++) { // of length 'length'...
                         // generate an action and append to actions buffer
-                        action = DRONE_ACTIONS[rnd.nextInt(DRONE_ACTIONS.length)];
+                        action = droneActions[rnd.nextInt(droneActions.length)];
                         actions.append(action);
 
                         // compute the new cartesian location based on the current action
-                        int[] newlocation = updateLocation(location, action);
-                        location = newlocation;
-                        int a = 0;
+                        location = updateLocation(location, action);
                     }
 
                     // append final location to the reports file
@@ -149,28 +150,7 @@ public class DeliverySamplesGenerator {
     }
 
     private static String locationToStringReadable(int[] location) {
-        StringBuilder str = new StringBuilder();
-        str.append("(");
-        str.append(location[0]);
-        str.append(", ");
-        str.append(location[1]);
-        str.append(")");
-        str.append(" dirección ");
-        switch (location[2]) {
-            case 0:
-                str.append("Norte");
-                break;
-            case 1:
-                str.append("Occidente");
-                break;
-            case 2:
-                str.append("Sur");
-                break;
-            case 3:
-                str.append("Oriente");
-                break;
-        }
-        return str.toString();
+        return String.format(Constants.OUTPUT_LOG_TEMPLATE, location[0], location[1], spanishDirections[location[2]]);
     }
 
     public static void printArr(int[] arr) {

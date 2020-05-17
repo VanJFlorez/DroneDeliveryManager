@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jcamilo.agents.Drone;
+import org.jcamilo.common.FileUtils;
 
 /**
  * This class has the bussiness logic to drive the drone to its delivery
@@ -17,36 +18,16 @@ public class DeliveryManager {
         File outFolder = new File("C:\\Users\\Administrador\\Downloads\\repo\\mine\\DroneDeliveryManager\\output\\");
 
         // clean out directory
-        deleteFiles(outFolder);
+        FileUtils.deleteFiles(outFolder);
 
-        // Do this with multithreading...
+        // Multhreaded loop
         for(File delivery : inFolder.listFiles()) {
-            String outFilePath = outFolder.getAbsolutePath() + "\\" + getOutputFilename(delivery.getName());   
+            File report = FileUtils.getOutFile(delivery.getName());
             
-            // each new dron runs over its own thread
-            Thread t = new Thread(new Drone(delivery, new File(outFilePath)));
+            // each new drone runs over its own thread
+            Thread t = new Thread(new Drone(delivery, report));
             t.start();
         }
     }
 
-    private static void deleteFiles(File folder) {
-        if(folder.isDirectory()) {
-            for(File f : folder.listFiles()) {
-                f.delete();
-            }
-            return;
-        }
-        System.out.println("ERROR: The associated path is not folder...");
-    }
-
-    private static String getOutputFilename(String inputFileName) {
-        return "out" + getFileNumber(inputFileName) + ".txt";
-    }
-
-    private static String getFileNumber(String fileName) {
-        Pattern pattern = Pattern.compile("\\d+");
-        Matcher matcher = pattern.matcher(fileName);
-        matcher.find();
-        return matcher.group();
-    }
 }
