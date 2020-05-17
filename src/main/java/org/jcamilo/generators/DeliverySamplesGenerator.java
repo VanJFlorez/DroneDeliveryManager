@@ -173,8 +173,6 @@ public class DeliverySamplesGenerator {
         return str.toString();
     }
 
-
-
     public static void printArr(int[] arr) {
         System.out.print("[ ");
         for(int i = 0; i < arr.length - 1; i++)

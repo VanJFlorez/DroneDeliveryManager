@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,50 +13,24 @@ import org.jcamilo.deliverables.Deliverable;
 public class Drone implements Runnable {
     private final static int ITEM_LIMIT = 3;
     private final static int MAX_DISTANCE_ALLOWED = 10;
-    private final static int[] START_POINT = { 0, 0, 0 };
+    public static final String REPORT_SPLIT_MESSAGE = "== Reporte de entregas ==";
 
-    private List<char[]> deliveryPaths;
+
+    private List<String> droneActions;
     private List<Deliverable> deliverables;
 
     private File reportsOut;
 
-    /**
-     * Constructor for one delivery path
-     * 
-     * @param deliveryPath       a char string with the drone actions
-     * @param logDeliveryJourney indicates if each step on the path must be recorded
-     */
-    public Drone(Deliverable item, char[] deliveryPath) {
-        deliverables = Arrays.asList(item);
-        deliveryPaths = Arrays.asList(deliveryPath);
-    }
-
     public Drone(File deliveries, File reportsOut) throws IOException {
-        deliveryPaths = new LinkedList<>();
+        droneActions = new LinkedList<>();
         BufferedReader reader = new BufferedReader(new FileReader(deliveries));
-        String actions = "";
+        String actions;
         while((actions = reader.readLine()) != null) {
-            deliveryPaths.add(actions.toCharArray());
+            droneActions.add(actions);
         }
 
         this.reportsOut = reportsOut;
         reader.close();
-    }
-
-    /**
-     * Constructor for several delivery paths
-     * 
-     * @param deliveryPaths      a List containing char string secuences with drone
-     *                           actions
-     * @param logDeliveryJourney indicates if each step on the path must be recorded
-     * @throws ItemLimitException
-     */
-    public Drone(List<Deliverable> items, List<char[]> deliveryPaths) throws ItemLimitException {
-        if (items.size() > ITEM_LIMIT) {
-            throw new ItemLimitException();
-        }
-        deliverables = items;
-        this.deliveryPaths = deliveryPaths;
     }
 
     /**
@@ -66,13 +39,9 @@ public class Drone implements Runnable {
      */
     @Override
     public void run() {
-        for(char[] path : deliveryPaths) {
-            try {
-                deliverOne(path);
-            } catch (IOException e) {
-                System.out.println("Cannot complete this delivery");
-                e.printStackTrace();
-            }
+        log(REPORT_SPLIT_MESSAGE);
+        for(String actions : droneActions) {                
+            deliverOne(actions.toCharArray());
         }
     }
 
@@ -87,60 +56,97 @@ public class Drone implements Runnable {
      * @return void, but writes to reportsOut the drone's final location
      * @throws IOException
      */
-    private void deliverOne(char[] deliveryPath) throws IOException {
-        final int mod = 4;
-        int[] currLocation = {START_POINT[0], START_POINT[1], START_POINT[2]};
-        for(int action : deliveryPath) {
+    private void deliverOne(char[] deliveryPath) {
+        State state = new State();
+        for(char action : deliveryPath) {
+            state.performAction(action);
+        }
+        log(state.getReadableState());
+    }
+
+    private void log(String str) {
+        try (FileWriter fw = new FileWriter(reportsOut, true);) {
+            fw.write(str + "\n"); 
+        } catch (IOException e) {
+            System.out.println("The message cannot be written to the log.");
+            e.printStackTrace();
+        }
+        
+    }
+
+    public static class State {
+        private static final char[] charDirections = {'N', 'E', 'S', 'W'};
+        private static final String[] spanishCoord = {"Norte", "Oriente", "Sur", "Occidente"};
+
+        private int xPos;
+        private int yPos;
+        private int direction;
+
+        public State() {
+            xPos = 0;
+            yPos = 0;
+            direction = 0;
+        }
+
+        public State(int xPos, int yPos, int direction) {
+            this.xPos = xPos;
+            this.yPos = yPos;
+            this.direction = direction;
+        }
+
+        public void performAction(char action) {
             switch (action) {
                 case 'A': // Adelante
-                    switch (currLocation[2]) {
+                    switch (direction) {
                         case 0:
-                            currLocation[1] += 1;
+                            yPos += 1;
                             break;
                         case 1:
-                            currLocation[0] += 1;
+                            xPos += 1;
                             break;
                         case 2:
-                            currLocation[1] -= 1;
+                            yPos -= 1;
                             break;
                         case 3:
-                            currLocation[0] -= 1;
+                            xPos -= 1;
                             break;
                     }
                     break;
                 case 'I': // Izquierda
-                    currLocation[2] -= 1;
-                    if (currLocation[2] == -1)
-                        currLocation[2] = 3;
+                    direction -= 1;
+                    if (direction == -1)
+                        direction = 3;
                     break;
                 case 'D': // Derecha
-                    currLocation[2] += 1;
-                    currLocation[2] %= mod;
+                    direction += 1;
+                    direction %= charDirections.length;
                     break;
             }
         }
 
-        FileWriter fw = new FileWriter(reportsOut, true);
-        fw.write(currLocation[0] + " " + currLocation[1] + " " + currLocation[2] + "\n");
-        fw.close();
+        public int[] getCurrentStateAsArray() {
+            return new int[]{xPos, yPos, direction};
+        }
+
+        public String getReadableState() {
+            StringBuilder str = new StringBuilder();
+            str.append("(");
+            str.append(xPos);
+            str.append(", ");
+            str.append(yPos);
+            str.append(")");
+            str.append(" dirección ");
+            str.append(spanishCoord[direction]);
+            return str.toString();
+        }
+
+        /**
+         * @return the current drone's direction represented by a char
+         */
+        public char getCharDirection() {
+            return charDirections[direction];
+        }
+
     }
 
-    /**
-     * A little helper
-     * @param direction takes a char and @return a number previously defined.
-     */
-    private static int getIntDirection(char direction) {
-        switch (direction) {
-            case 'N':
-                return 0;
-            case 'S':
-                return 1;
-            case 'W':
-                return 2;
-            case 'E':
-                return 3;
-            default:
-                return -1;
-        }
-    }
 }

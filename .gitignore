@@ -1,4 +1,6 @@
-out/*
+output/*
+datasets/*
+input/*
 
 .~lock.*
 HELP.md

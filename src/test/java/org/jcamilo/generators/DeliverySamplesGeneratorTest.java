@@ -54,9 +54,9 @@ public class DeliverySamplesGeneratorTest {
 
                     // see the method 'updateLocation()' implementation for details...
                     if(prevLocation[2] == 0)
-                        assertEquals(nextLocation[2], 3);     // dir
+                        assertEquals(nextLocation[2], 3);                           // dir
                     else
-                        assertEquals(nextLocation[2], prevLocation[2] - 1);
+                        assertEquals(nextLocation[2], prevLocation[2] - 1);         // dir
                         
                     break;
                 case 'D':
@@ -66,10 +66,5 @@ public class DeliverySamplesGeneratorTest {
                     break;
             }
         }
-
-
-
-
-
     }
 }
