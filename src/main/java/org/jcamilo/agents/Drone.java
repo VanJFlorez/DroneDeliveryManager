@@ -12,9 +12,9 @@ import org.jcamilo.common.Constants;
 import org.jcamilo.deliverables.Deliverable;
 
 public class Drone implements Runnable {
-    private final static int ITEM_LIMIT = 3;
-    private final static int MAX_DISTANCE_ALLOWED = 10;
-    public static final String reportSplitMessage = Constants.REPORT_SPLIT_MESSAGE;
+    private final static int itemLimit = Constants.DRONE_ITEM_LIMIT;
+    private final static int maxDistanceAllowed = Constants.DRONE_MAX_DISTANCE_ALLOWED;
+    private final static String reportSplitMessage = Constants.REPORT_SPLIT_MESSAGE;
 
     private List<String> droneActions;
     private List<Deliverable> deliverables;
@@ -60,6 +60,10 @@ public class Drone implements Runnable {
         returnToStore();
         for(char action : deliveryPath.toCharArray()) {
             state.performAction(action);
+
+            if(state.getDistanceFromStore() > maxDistanceAllowed) {
+                // TODO: do something if drone reaches the max distance allowed
+            }
         }
         log(state.getReadableState());
     }
@@ -141,6 +145,16 @@ public class Drone implements Runnable {
          */
         public char getCharDirection() {
             return charDirections[direction];
+        }
+
+        /**
+         * @return drone's manhattan distance from store.
+         */
+        public int getDistanceFromStore() {
+            int xStore = Constants.START_POINT[0];
+            int yStore = Constants.START_POINT[1];
+            return Math.abs(xStore - xPos) + Math.abs(yStore - yPos);
+
         }
 
         public int getXPos() { return xPos; }

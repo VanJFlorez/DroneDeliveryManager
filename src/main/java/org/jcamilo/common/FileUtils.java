@@ -1,15 +1,26 @@
 package org.jcamilo.common;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FileUtils {
-    
+
+    /**
+     * If the provided File object is a folder, delete all contained files only.
+     * 
+     * @param folder
+     */
     public static void deleteFiles(File folder) {
-        if(folder.isDirectory()) {
-            for(File f : folder.listFiles()) {
+        if (folder.isDirectory()) {
+            for (File f : folder.listFiles()) {
                 f.delete();
             }
             return;
@@ -19,6 +30,7 @@ public class FileUtils {
 
     /**
      * Gets the name that should have the output file given an input file name.
+     * 
      * @param inputFileName
      * @return
      */
@@ -27,7 +39,7 @@ public class FileUtils {
     }
 
     /**
-     * @param fileName the name of a numbered in file
+     * @param fileName the name of a indexed input file
      * @return
      */
     public static String getFileNumber(String fileName) {
@@ -37,19 +49,20 @@ public class FileUtils {
         return matcher.group();
     }
 
-
     /**
      * Creates an object file pointing to this project's output folder
+     * 
      * @param fileName
-     * @return File the object representation af an output file located in 
-     *         ./output/
+     * @return File the object representation af an output file located in ./output/
      */
     public static File getOutFile(String fileName) {
         String projectPath;
-        if(Pattern.matches(Constants.IN_FILENAME_REGEX, fileName)) {
-            projectPath = Constants.OUT_FOLDER_NAME + "\\" + Constants.FILE_OUT_PREFIX + getFileNumber(fileName) + Constants.FILE_EXTENSION;
+        if (Pattern.matches(Constants.IN_FILENAME_REGEX, fileName)) {
+            projectPath = Constants.OUT_FOLDER_NAME + "\\" + Constants.FILE_OUT_PREFIX + getFileNumber(fileName)
+                    + Constants.FILE_EXTENSION;
         } else {
-            projectPath = Constants.OUT_FOLDER_NAME + "\\" + Constants.FILE_OUT_PREFIX + fileName + Constants.FILE_EXTENSION;
+            projectPath = Constants.OUT_FOLDER_NAME + "\\" + Constants.FILE_OUT_PREFIX + fileName
+                    + Constants.FILE_EXTENSION;
         }
         return new File(projectPath);
     }
@@ -58,7 +71,7 @@ public class FileUtils {
         File datasetsFolder = new File(Constants.DATASETS_FOLDER_NAME);
         // put in this map the in00i.txt and out00i.txt
         HashMap<File, File> datasets = new HashMap<>();
-        for(File dataset : datasetsFolder.listFiles()) {
+        for (File dataset : datasetsFolder.listFiles()) {
             if (Pattern.matches(Constants.IN_FILENAME_REGEX, dataset.getName())) { // get in files
                 // get the associated output file
                 String outFileName = FileUtils.getOutputFilename(dataset.getName());
@@ -67,5 +80,32 @@ public class FileUtils {
             }
         }
         return datasets;
+    }
+
+    /**
+     * Copies only generated input dataset files to the input project folder.
+     * 
+     * @throws FileNotFoundException
+     */
+    public static void copyInputDataset() {
+
+        for(File sampleFile : new File(Constants.DATASETS_FOLDER_NAME).listFiles()) {
+            if (Pattern.matches(Constants.IN_FILENAME_REGEX, sampleFile.getName())) { // the input files
+                File destFile = new File(Constants.IN_FOLDER_NAME + "\\" + sampleFile.getName());
+                try(InputStream is = new FileInputStream(sampleFile);
+                    OutputStream os = new FileOutputStream(destFile)) {
+                    
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = is.read(buffer)) > 0) {
+                            os.write(buffer, 0, length);
+                        }
+
+                } catch(IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
     }
 }
