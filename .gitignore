@@ -4,7 +4,8 @@ datasets/*
 !datasets/in01.txt
 !datasets/out01.txt
 
-
+!input/placeholder
+!output/placeholder
 
 .~lock.*
 HELP.md
