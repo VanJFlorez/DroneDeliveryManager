@@ -1,10 +1,7 @@
-package org.jcamilo.agents;
+package org.jcamilo.deliverables;
 
 import java.util.LinkedList;
 import java.util.List;
-
-import org.jcamilo.deliverables.Deliverable;
-import org.jcamilo.deliverables.Lunch;
 
 public class Order {
     private String actionPath;
