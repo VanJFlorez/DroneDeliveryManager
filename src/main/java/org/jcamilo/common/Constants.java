@@ -1,7 +1,6 @@
 package org.jcamilo.common;
 
 public class Constants {
-    // TODO: Read this from a properties file, by using a 'Properties' Java util class.
     public static final int TEST_FACTOR = 1000;
     public static final char[] DIRECTIONS = {'N', 'E', 'S', 'W'}; // must match clockwise enumeration starting from north
     public static final String[] DIRECTIONS_ES = {"Norte", "Oriente", "Sur", "Occidente"}; // must match clockwise enumeration starting from north

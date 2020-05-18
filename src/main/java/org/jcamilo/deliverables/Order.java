@@ -20,6 +20,7 @@ public class Order {
             this.actionPath = "";
         } else {
             this.actionPath = order[0];
+            // TODO: -- SHOW READY TO READ CUSTOM DELIVERY DESCRIPTIONS
             for(int i = 1; i < order.length; i++) {
                 deliverables.add(new Lunch(order[i]));
             }

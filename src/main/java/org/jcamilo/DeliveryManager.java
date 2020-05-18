@@ -14,6 +14,7 @@ import org.jcamilo.generators.DeliverySamplesGenerator;
  */
 public class DeliveryManager {
     public static void main(String... args) throws IOException {
+        // TODO: -- SHOW EMPTY FOLDERS
         File inFolder = new File(Constants.IN_FOLDER_NAME);
         File outFolder = new File(Constants.OUT_FOLDER_NAME);
         File datasetsFolder = new File(Constants.DATASETS_FOLDER_NAME);
@@ -35,6 +36,7 @@ public class DeliveryManager {
         FileUtils.deleteFiles(outFolder);
 
         // Multhreaded loop
+        // TODO: -- SHOW 20 DRONES IN PARALLEL
         for(File delivery : inFolder.listFiles()) {
             File report = FileUtils.getOutFile(delivery.getName());
             
@@ -42,6 +44,8 @@ public class DeliveryManager {
             Thread t = new Thread(new Drone(delivery, report));
             t.start();
         }
+
+        // TODO: --SHOW INPUT AND OUTPUT SIDE BY SIDE
     }
 
 }

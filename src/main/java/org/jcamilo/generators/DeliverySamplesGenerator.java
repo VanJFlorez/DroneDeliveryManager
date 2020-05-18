@@ -58,6 +58,8 @@ public class DeliverySamplesGenerator {
                     // each delivery starts from the initial point
                     int[] location = startPoint;
                     int steps = rnd.nextInt(actionSize);
+
+                    // TODO: -- SHOW ONE BY ONE GENERATION OPERATION
                     for(int k = 0; k < steps; k++) { // of length 'length'...
                         // generate an action and append to actions buffer
                         char action = droneActions[rnd.nextInt(droneActions.length)];

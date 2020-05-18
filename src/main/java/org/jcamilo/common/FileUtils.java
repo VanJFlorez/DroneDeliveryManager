@@ -74,7 +74,6 @@ public class FileUtils {
      * files.
      * @return a dictionary where input files are mapped into output files
      */
-    // TODO: Comment why HashMap a not HashTable
     public static HashMap<File, File> getDataset() {
         File datasetsFolder = new File(Constants.DATASETS_FOLDER_NAME);
         // put in this map the in00i.txt and out00i.txt

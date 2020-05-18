@@ -74,7 +74,7 @@ public class Drone implements Runnable {
         returnToStore();
 
         if (order.getItemQtty() > itemLimit) {
-            // TODO: note the exception handling here
+            // TODO: -- SHOW 3 ALMUERZOS
             throw new ItemLimitException();
         }
 
@@ -82,7 +82,8 @@ public class Drone implements Runnable {
             state.performAction(action);
 
             if(state.getDistanceFromStore() > maxDistanceAllowed) {
-                // TODO: do something if drone reachs the max distance allowed
+                // TODO: -- SHOW 20 CUADRAS
+                // do something if drone reachs the max distance allowed
                 // no exceptions involved
             }
         }
@@ -106,6 +107,7 @@ public class Drone implements Runnable {
         }
     }
 
+    // TODO: -- SHOW GRID COMPUTATION
     public static class State {
         private static final char[] charDirections = Constants.DIRECTIONS;
         private static final String[] spanishCoord = Constants.DIRECTIONS_ES;
