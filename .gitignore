@@ -1,6 +1,9 @@
 output/*
-datasets/*
 input/*
+datasets/*
+!datasets/in01.txt
+!datasets/out01.txt
+
 
 
 .~lock.*
