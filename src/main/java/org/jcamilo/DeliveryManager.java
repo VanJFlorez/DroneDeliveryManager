@@ -13,12 +13,10 @@ import org.jcamilo.generators.DeliverySamplesGenerator;
  * destination.
  */
 public class DeliveryManager {
-    public static void main(String[] args) throws IOException {
+    public static void main(String... args) throws IOException {
         File inFolder = new File(Constants.IN_FOLDER_NAME);
         File outFolder = new File(Constants.OUT_FOLDER_NAME);
         File datasetsFolder = new File(Constants.DATASETS_FOLDER_NAME);
-
-
 
         int dronQtty = Constants.DRONE_QTTY;
         int deliveryQtty = Constants.DELIVERIES_PER_DRONE;

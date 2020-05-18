@@ -7,6 +7,8 @@ public class Lunch extends Deliverable {
     private int priority;
     private String description;
 
+    public Lunch(String str) {}
+
     public Lunch(String orderID, float price, int priority, String description) {
         this.orderID = orderID;
         this.price = price;

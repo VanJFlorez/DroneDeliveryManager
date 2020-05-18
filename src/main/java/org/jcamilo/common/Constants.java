@@ -12,8 +12,6 @@ public class Constants {
     public static final int DRONE_MAX_DISTANCE_ALLOWED = 3;
     public static final int DELIVERIES_PER_DRONE = 100;
     public static final int ACTIONS_PER_DELIVERY = 80;
-
-    
     
     public static final String REPORT_SPLIT_MESSAGE = "== Reporte de entregas ==";
     public static final String FILE_IN_PREFIX = "in";

@@ -11,11 +11,13 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Since the project relies upon generation, writting, reading and moving files,
+ * here we provide the helpers for such operations.
+ */
 public class FileUtils {
-
     /**
      * If the provided File object is a folder, delete all contained files only.
-     * 
      * @param folder
      */
     public static void deleteFiles(File folder) {
@@ -67,6 +69,12 @@ public class FileUtils {
         return new File(projectPath);
     }
 
+    /**
+     * Seeks the dataset folder for input00i.txt and the related output00i.txt
+     * files.
+     * @return a dictionary where input files are mapped into output files
+     */
+    // TODO: Comment why HashMap a not HashTable
     public static HashMap<File, File> getDataset() {
         File datasetsFolder = new File(Constants.DATASETS_FOLDER_NAME);
         // put in this map the in00i.txt and out00i.txt
@@ -88,7 +96,6 @@ public class FileUtils {
      * @throws FileNotFoundException
      */
     public static void copyInputDataset() {
-
         for(File sampleFile : new File(Constants.DATASETS_FOLDER_NAME).listFiles()) {
             if (Pattern.matches(Constants.IN_FILENAME_REGEX, sampleFile.getName())) { // the input files
                 File destFile = new File(Constants.IN_FOLDER_NAME + "\\" + sampleFile.getName());

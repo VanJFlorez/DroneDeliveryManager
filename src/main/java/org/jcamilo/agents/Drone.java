@@ -9,39 +9,51 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jcamilo.common.Constants;
-import org.jcamilo.deliverables.Deliverable;
 
 public class Drone implements Runnable {
     private final static int itemLimit = Constants.DRONE_ITEM_LIMIT;
     private final static int maxDistanceAllowed = Constants.DRONE_MAX_DISTANCE_ALLOWED;
     private final static String reportSplitMessage = Constants.REPORT_SPLIT_MESSAGE;
 
-    private List<String> droneActions;
-    private List<Deliverable> deliverables;
+    // One drone has many deliveries (one for each line int the deliveries file), 
+    // and each delivery can have several lunchs aka deliverables (upto @itemLimit).
+    // 
+    // One drone will have many deliveries (orders) as many entries has this
+    // list.
+    private List<Order> deliveries;
     private File reports;
     private State state;
 
     public Drone(File deliveries, File reports) throws IOException {
-        droneActions = new LinkedList<>();
+        this.deliveries = new LinkedList<>();
+        
+        String deliveryDescr;
         BufferedReader reader = new BufferedReader(new FileReader(deliveries));
-        String actions;
-        while((actions = reader.readLine()) != null) {
-            droneActions.add(actions);
+        while((deliveryDescr = reader.readLine()) != null) {
+            Order order = new Order(deliveryDescr);
+            this.deliveries.add(order);
         }
+        reader.close();
+        
         state = new State();
         this.reports = reports;
-        reader.close();
     }
-
+    
     /**
-     * Supply all deliverables.
+     * Deliver all orders.
      * @return
      */
     @Override
     public void run() {
         log(reportSplitMessage);
-        for(String actions : droneActions) {                
-            deliverOne(actions);
+        for(Order order : deliveries) {
+            try {
+                deliverOne(order);
+            } catch(ItemLimitException e) {
+                System.out.println("This order exceedes the current limit of items (" + itemLimit + ")");
+                System.out.println("Ommiting this delivery.");
+                e.printStackTrace();
+            }
         }
     }
 
@@ -54,15 +66,23 @@ public class Drone implements Runnable {
      * and we can compute de direction actions by doing modular arithmetic.
      * 
      * @return void, but writes to reportsOut the drone's final location
+     * @throws ItemLimitException
      * @throws IOException
      */
-    public void deliverOne(String deliveryPath) {
+    public void deliverOne(Order order) throws ItemLimitException {
         returnToStore();
-        for(char action : deliveryPath.toCharArray()) {
+
+        if (order.getItemQtty() > itemLimit) {
+            // TODO: note the exception handling here
+            throw new ItemLimitException();
+        }
+
+        for(char action :  order.getActionPath().toCharArray()) {
             state.performAction(action);
 
             if(state.getDistanceFromStore() > maxDistanceAllowed) {
-                // TODO: do something if drone reaches the max distance allowed
+                // TODO: do something if drone reachs the max distance allowed
+                // no exceptions involved
             }
         }
         log(state.getReadableState());
@@ -160,6 +180,5 @@ public class Drone implements Runnable {
         public int getXPos() { return xPos; }
         public int getYPos() { return yPos; }
         public int getDirection() { return direction; }
-
     }
 }

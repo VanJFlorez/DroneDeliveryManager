@@ -28,22 +28,26 @@ public class DroneTest {
     @Test
     public void deliverOneTest() throws IOException {
         HashMap<File, File> datasets = FileUtils.getDataset();
-        for(Map.Entry<File, File> entry : datasets.entrySet()) {
+        for (Map.Entry<File, File> entry : datasets.entrySet()) {
             File sampleInputFile = entry.getKey();
             File sampleOutputFile = entry.getValue();
             File testReport = FileUtils.getOutFile(sampleInputFile.getName());
 
             Drone drone = new Drone(sampleInputFile, testReport);
 
-            // read the sample in file line by line
             BufferedReader sampleInput = new BufferedReader(new FileReader(sampleInputFile));
             BufferedReader sampleOutput = new BufferedReader(new FileReader(sampleOutputFile));
 
-            String actions;
+            String deliveryDescr;
             String expectedState = sampleOutput.readLine();// skip the first line (the report title)
-            while((actions = sampleInput.readLine()) != null && 
-                    (expectedState = sampleOutput.readLine()) != null) {
-                drone.deliverOne(actions);
+            // read the sample input and output files line by line
+            while ((deliveryDescr = sampleInput.readLine()) != null
+                    && (expectedState = sampleOutput.readLine()) != null) {
+                try {
+                    drone.deliverOne(new Order(deliveryDescr));
+                } catch (ItemLimitException e) {
+                    e.printStackTrace();
+                }
                 String droneState = drone.getCurrentState().getReadableState();
                 
                 // System.out.println("RESULT: " + droneState + " EXPECTED: " + expectedState);
